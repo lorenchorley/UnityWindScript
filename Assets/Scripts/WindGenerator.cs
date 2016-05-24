@@ -1,11 +1,11 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
 /*
  * Written by Loren Chorley (https://github.com/lorenchorley)
  * Usage: Attach to any object. Any object that is to be affected by the wind should be added to the AffectedObjects list.
  */
-public class WindScript : MonoBehaviour {
+public class WindGenerator : MonoBehaviour {
 
     // Time to transition between states
     public float transitionTime = 1;
@@ -15,15 +15,15 @@ public class WindScript : MonoBehaviour {
 
     // Min and max values of speed and direction change
     // as well as the wait period before the next update
-    public float minDirectionWait = 5;
-    public float maxDirectionWait = 60;
+    public float minDirectionWait = 2;
+    public float maxDirectionWait = 10;
     public float minDirectionChange = 0;
     public float maxDirectionChange = 1;
 
-    public float minSpeed = 0;
-    public float maxSpeed = 15;
+    public float minSpeed = 1;
+    public float maxSpeed = 2;
     public float minSpeedWait = 1;
-    public float maxSpeedWait = 2;
+    public float maxSpeedWait = 5;
 
     // Transitioning values
     private float? startedDirectionChange = null;
@@ -35,14 +35,14 @@ public class WindScript : MonoBehaviour {
     private float TargetSpeed;
 
     // Final usable values
-    public Vector3 windDirection;
+    public Vector3 windDirection = Vector3.forward;
     public float windSpeed;
     public Vector3 windVelocity;
 
     // Count down timers (in seconds)
     private float directionTimer;
     private float speedTimer;
- 
+
     public List<Rigidbody> AffectedObjects;
 
     void Update() {
@@ -82,8 +82,12 @@ public class WindScript : MonoBehaviour {
 
         // Apply impulses to all affected objects
         foreach (Rigidbody rb in AffectedObjects)
-            rb.AddForce(windVelocity + Random.insideUnitSphere * maxTurbulence * windSpeed, ForceMode.Impulse);
+            rb.AddForce(GenerateImpulseForce(), ForceMode.Impulse);
 
+    }
+
+    public Vector3 GenerateImpulseForce() {
+        return windVelocity + Random.insideUnitSphere * windSpeed * maxTurbulence;
     }
 
     void ChangeDirection() {
